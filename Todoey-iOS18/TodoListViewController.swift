@@ -14,11 +14,21 @@ class TodoListViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        let sAppearance = UINavigationBar.appearance()
-        sAppearance.backgroundColor = #colorLiteral(red: 0.9686274529, green: 0.78039217, blue: 0.3450980484, alpha: 1)
-        sAppearance.barTintColor = #colorLiteral(red: 0.9686274529, green: 0.78039217, blue: 0.3450980484, alpha: 1)
-        self.navigationController?.navigationBar.barTintColor = #colorLiteral(red: 0.9686274529, green: 0.78039217, blue: 0.3450980484, alpha: 1)
-        self.navigationController?.navigationBar.isTranslucent = false
+        let navbar = self.navigationController!.navigationBar
+        let standardAppearance = UINavigationBarAppearance()
+        standardAppearance.configureWithOpaqueBackground()
+        standardAppearance.backgroundColor = .systemPink
+        standardAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+//        standardAppearance.backgroundImage = backImageForDefaultBarMetrics
+        let compactAppearance = standardAppearance.copy()
+        compactAppearance.backgroundColor = .systemPink
+        compactAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+        navbar.standardAppearance = standardAppearance
+        navbar.scrollEdgeAppearance = standardAppearance
+        navbar.compactAppearance = compactAppearance
+        navbar.barTintColor = .systemBlue
+        
+        
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -31,6 +41,18 @@ class TodoListViewController: UITableViewController {
         cell.textLabel?.text = itemArray[indexPath.row]
         
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print("row at \(indexPath.row) value \(itemArray[indexPath.row])")
+        
+        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
+            tableView.cellForRow(at: indexPath)?.accessoryType = .none
+        } else {
+            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
+        }
+        
+        tableView.deselectRow(at: indexPath, animated: true)
     }
 }
 
