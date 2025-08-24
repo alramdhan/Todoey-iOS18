@@ -6,7 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		2A8C24B82E59E679009621E5 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 2A8C24B72E59E674009621E5 /* README.md */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		2A8C24B72E59E674009621E5 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		2AE8EB572E537D7700E38B9B /* Todoey-iOS18.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Todoey-iOS18.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -45,6 +50,7 @@
 		2AE8EB4E2E537D7700E38B9B = {
 			isa = PBXGroup;
 			children = (
+				2A8C24B72E59E674009621E5 /* README.md */,
 				2AE8EB592E537D7700E38B9B /* Todoey-iOS18 */,
 				2AE8EB582E537D7700E38B9B /* Products */,
 			);
@@ -122,6 +128,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2A8C24B82E59E679009621E5 /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -14,10 +14,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        // path for UserDefaults directory save plist print(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last! as String)
         return true
     }
 
     // MARK: UISceneSession Lifecycle
+    func applicationWillResignActive(_ application: UIApplication) {
+        // method dimana dapat melakukan sesuatu untuk pencegahan kehilangan data. seperti mengisi formulir dan ditengah-tengah mendapatkan panggilan telepon.
+    }
+    
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        // terjadi ketika aplikasi menghilang dari layar. misalnya ketika menekan tombol beranda dan aplikasi memasuki latar belakang.
+    }
+    
+    func applicationWillTerminate(_ application: UIApplication) {
+        // ketika aplikasi akan benar-benar diberhentikan dan dihapus dari memory.
+    }
 
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
         // Called when a new scene session is being created.
