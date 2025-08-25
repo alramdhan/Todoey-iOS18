@@ -6,11 +6,13 @@
 //
 
 import UIKit
+import CoreData
 
 class TodoListViewController: UITableViewController {
     var itemArray = [ToDoItem]()
-    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+//    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
 //    let defaults = UserDefaults.standard
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -18,7 +20,7 @@ class TodoListViewController: UITableViewController {
 //        if let items = defaults.array(forKey: "TodoListArray") as? [ToDoItem] {
 //            itemArray = items
 //        }
-        loadItems()
+//        loadItems()
         
         let navbar = self.navigationController!.navigationBar
         let standardAppearance = UINavigationBarAppearance()
@@ -59,10 +61,11 @@ class TodoListViewController: UITableViewController {
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
         var textField = UITextField()
         let alert = UIAlertController(title: "Add New Todoey Item", message: "", preferredStyle: .alert);
-        let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
+//        let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
             if let safeItem = textField.text {
-                let newItem = ToDoItem()
+                let newItem = ToDoItem(context: self.context)
                 newItem.title = safeItem
+                newItem.done = false
                 self.itemArray.append(newItem)
 //                self.defaults.set(self.itemArray, forKey: "TodoListArray")
                 self.saveItem()
@@ -77,29 +80,26 @@ class TodoListViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
     }
     
-    // MARK - Model Manipulation Methods
+    // MARK: - Model Manipulation Methods
     func saveItem() {
-        let encoder = PropertyListEncoder()
         do {
-            let data = try encoder.encode(self.itemArray)
-            try data.write(to: self.dataFilePath!)
+            try context.save()
         } catch {
-            print("Error encoding Item Array, \(error)")
+            print("Error saving context: \(error)")
         }
         
-        
-        tableView.reloadData()
+        self.tableView.reloadData()
     }
     
-    func loadItems() {
-        if let data = try? Data(contentsOf: dataFilePath!) {
-            let decoder = PropertyListDecoder()
-            do {
-                itemArray = try decoder.decode([ToDoItem].self, from: data)
-            } catch {
-                print("Error decoding Item Array, \(error)")
-            }
-        }
-    }
+//    func loadItems() {
+//        if let data = try? Data(contentsOf: dataFilePath!) {
+//            let decoder = PropertyListDecoder()
+//            do {
+//                itemArray = try decoder.decode([ToDoItem].self, from: data)
+//            } catch {
+//                print("Error decoding Item Array, \(error)")
+//            }
+//        }
+//    }
 }
 
