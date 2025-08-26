@@ -20,7 +20,7 @@ class TodoListViewController: UITableViewController {
 //        if let items = defaults.array(forKey: "TodoListArray") as? [ToDoItem] {
 //            itemArray = items
 //        }
-//        loadItems()
+        loadItems()
         
         let navbar = self.navigationController!.navigationBar
         let standardAppearance = UINavigationBarAppearance()
@@ -53,6 +53,9 @@ class TodoListViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        itemArray[indexPath.row].setValue("Completed", forKey: "title") // for update data Core Data and still to call context.save()
+//        context.delete(itemArray[indexPath.row]) // untuk menghapus dari Core Data dan perlu memanggil code context.save()
+//        itemArray.remove(at: indexPath.row) // untuk delete dari array untuk update tampilan tanpa menyentuh Core Data
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         saveItem()
         tableView.deselectRow(at: indexPath, animated: true)
@@ -91,15 +94,33 @@ class TodoListViewController: UITableViewController {
         self.tableView.reloadData()
     }
     
-//    func loadItems() {
-//        if let data = try? Data(contentsOf: dataFilePath!) {
-//            let decoder = PropertyListDecoder()
-//            do {
-//                itemArray = try decoder.decode([ToDoItem].self, from: data)
-//            } catch {
-//                print("Error decoding Item Array, \(error)")
-//            }
-//        }
-//    }
+    func loadItems(with request: NSFetchRequest<ToDoItem> = ToDoItem.fetchRequest()) {
+//        let request: NSFetchRequest<ToDoItem> = ToDoItem.fetchRequest()
+        do {
+            itemArray = try context.fetch(request)
+        } catch {
+            print("Error fetch data: \(error)")
+        }
+    }
 }
 
+//MARK: - Search bar method
+extension TodoListViewController: UISearchBarDelegate {
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        let request: NSFetchRequest<ToDoItem> = ToDoItem.fetchRequest()
+        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        
+        loadItems(with: request)
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchBar.text?.count == 0 {
+            loadItems()
+            
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+        }
+    }
+}
