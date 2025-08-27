@@ -10,31 +10,25 @@ import CoreData
 
 class TodoListViewController: UITableViewController {
     var itemArray = [ToDoItem]()
+    var selectedCategory: Category? {
+        didSet {
+            loadItems()
+        }
+    }
 //    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
 //    let defaults = UserDefaults.standard
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
 
+    override func viewWillAppear(_ animated: Bool) {
+        initNavigationBar(self.navigationController)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
 //        if let items = defaults.array(forKey: "TodoListArray") as? [ToDoItem] {
 //            itemArray = items
 //        }
-        loadItems()
-        
-        let navbar = self.navigationController!.navigationBar
-        let standardAppearance = UINavigationBarAppearance()
-        standardAppearance.configureWithOpaqueBackground()
-        standardAppearance.backgroundColor = .systemPink
-        standardAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
-//        standardAppearance.backgroundImage = backImageForDefaultBarMetrics
-        let compactAppearance = standardAppearance.copy()
-        compactAppearance.backgroundColor = .systemPink
-        compactAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
-        navbar.standardAppearance = standardAppearance
-        navbar.scrollEdgeAppearance = standardAppearance
-        navbar.compactAppearance = compactAppearance
-        navbar.barTintColor = .systemBlue
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -69,6 +63,7 @@ class TodoListViewController: UITableViewController {
                 let newItem = ToDoItem(context: self.context)
                 newItem.title = safeItem
                 newItem.done = false
+                newItem.parentCategory = self.selectedCategory
                 self.itemArray.append(newItem)
 //                self.defaults.set(self.itemArray, forKey: "TodoListArray")
                 self.saveItem()
@@ -94,13 +89,23 @@ class TodoListViewController: UITableViewController {
         self.tableView.reloadData()
     }
     
-    func loadItems(with request: NSFetchRequest<ToDoItem> = ToDoItem.fetchRequest()) {
-//        let request: NSFetchRequest<ToDoItem> = ToDoItem.fetchRequest()
+    func loadItems(with request: NSFetchRequest<ToDoItem> = ToDoItem.fetchRequest(), predicate: NSPredicate? = nil) {
+        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
+        if let additionalPredicate = predicate {
+            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, additionalPredicate])
+            print("ini")
+        } else {
+            request.predicate = categoryPredicate
+            print("else")
+        }
+        
         do {
             itemArray = try context.fetch(request)
         } catch {
             print("Error fetch data: \(error)")
         }
+        
+        tableView.reloadData()
     }
 }
 
@@ -108,10 +113,11 @@ class TodoListViewController: UITableViewController {
 extension TodoListViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         let request: NSFetchRequest<ToDoItem> = ToDoItem.fetchRequest()
-        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+        let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
         request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        print("text \(searchBar.text!)")
         
-        loadItems(with: request)
+        loadItems(with: request, predicate: predicate)
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {

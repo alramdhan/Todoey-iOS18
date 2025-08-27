@@ -12,7 +12,6 @@ import CoreData
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         // path for UserDefaults directory save plist print(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last! as String)
@@ -74,3 +73,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 }
 
+extension UIViewController {
+    func initNavigationBar(_ navigationController: UINavigationController?) {
+        let navbar = navigationController!.navigationBar
+        let standardAppearance = UINavigationBarAppearance()
+        standardAppearance.configureWithOpaqueBackground()
+        standardAppearance.backgroundColor = .systemPink
+        standardAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+    //        standardAppearance.backgroundImage = backImageForDefaultBarMetrics
+        let compactAppearance = standardAppearance.copy()
+        compactAppearance.backgroundColor = .systemPink
+        compactAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+        navbar.standardAppearance = standardAppearance
+        navbar.scrollEdgeAppearance = standardAppearance
+        navbar.compactAppearance = compactAppearance
+        navbar.barTintColor = .systemBlue
+    }
+}
