@@ -6,11 +6,15 @@
 //
 
 import UIKit
-import CoreData
+//import CoreData
+import RealmSwift
+import ChameleonFramework
 
-class CategoryViewController: UITableViewController {
-    var categories = [Category]()
-    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+class CategoryViewController: SwipeTableViewController {
+//    var categories = [Category]()
+//    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    let realm = try! Realm()
+    var categories: Results<CategoryRealm>?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,14 +24,16 @@ class CategoryViewController: UITableViewController {
     
     //MARK: - TableView Datasource methods
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return categories.count
+        return categories?.count ?? 1
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
-        let category = categories[indexPath.row]
-        
-        cell.textLabel?.text = category.name
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
+        if let category = categories?[indexPath.row] {
+            cell.textLabel?.text = category.name
+            cell.backgroundColor = UIColor(hexString: category.colour)
+        }
+//        cell.delegate = self
         
         return cell
     }
@@ -43,7 +49,7 @@ class CategoryViewController: UITableViewController {
         let destinationVC = segue.destination as! TodoListViewController
         
         if let indexPath = tableView.indexPathForSelectedRow {
-            destinationVC.selectedCategory = categories[indexPath.row]
+            destinationVC.selectedCategory = categories?[indexPath.row]
         }
     }
     
@@ -52,16 +58,17 @@ class CategoryViewController: UITableViewController {
         var textField = UITextField()
         let alert = UIAlertController(title: "Add New Category", message: "", preferredStyle: .alert);
         let action = UIAlertAction(title: "Add Category", style: .default) { (action) in
-            if let safeItem = textField.text {
-                let newItem = Category(context: self.context)
-                newItem.name = safeItem
+            if let safeCategory = textField.text {
+                let newCategory = CategoryRealm()
+                newCategory.name = safeCategory
+                newCategory.colour = UIColor.randomFlat.hexValue()
                 
-                self.categories.append(newItem)
-                self.saveCategory()
+//                self.categories.append(newItem)
+                self.saveCategory(data: newCategory)
             }
         }
         alert.addTextField { (alertTextField) in
-            alertTextField.placeholder = "Create new item"
+            alertTextField.placeholder = "Create new category"
             textField = alertTextField
         }
         alert.addAction(action)
@@ -70,9 +77,12 @@ class CategoryViewController: UITableViewController {
     }
     
     //MARK: - Data Manipulation methods
-    func saveCategory() {
+    func saveCategory(data category: CategoryRealm) {
         do {
-            try context.save()
+//            try context.save()
+            try realm.write {
+                realm.add(category)
+            }
         } catch {
             print("Error saving context: \(error)")
         }
@@ -80,12 +90,28 @@ class CategoryViewController: UITableViewController {
         self.tableView.reloadData()
     }
     
-    func reloadCategories(with request: NSFetchRequest<Category> = Category.fetchRequest()) {
+    func reloadCategories() {
+        categories = realm.objects(CategoryRealm.self)
+        tableView.reloadData()
         //let request: NSFetchRequest<ToDoItem> = ToDoItem.fetchRequest()
-        do {
-            categories = try context.fetch(request)
-        } catch {
-            print("Error fetch data: \(error)")
+//        do {
+//            categories = try context.fetch(request)
+//        } catch {
+//            print("Error fetch data: \(error)")
+//        }
+    }
+    
+    override func updateModel(at indexPath: IndexPath) {
+        super.updateModel(at: indexPath)
+        if let catForDeletion = self.categories?[indexPath.row] {
+            do {
+                try self.realm.write {
+                    self.realm.delete(catForDeletion)
+                }
+            } catch {
+                print("Error deleting category, \(error)")
+            }
         }
     }
 }
+

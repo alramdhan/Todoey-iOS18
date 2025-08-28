@@ -10,5 +10,6 @@ import RealmSwift
 
 class CategoryRealm: Object {
     @Persisted var name: String = ""
+    @Persisted var colour: String = ""
     @Persisted var items = List<ToDoItemRealm>()
 }

@@ -6,5 +6,8 @@ target 'Todoey-iOS18' do
   use_frameworks!
 
   # Pods for Todoey-iOS18
-  pod 'FontAwesomeKit'
+  # pod 'FontAwesomeKit'
+  # pod 'RealmSwift', '~> 10.0'
+  pod 'SwipeCellKit'
+  pod 'ChameleonFramework/Swift', :git => 'https://github.com/vicc/chameleon.git', :branch => 'wip/swift4'
 end
